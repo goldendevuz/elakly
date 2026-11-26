@@ -15,6 +15,8 @@ An open-source content filter for Instagram. *Elak* is Uzbek for a sieve.
 - Skip topics (marketing, crypto, betting, easy money, politics, celebrities, football), your own words and hashtags, or whole accounts.
 - Limits on likes, views and video length; hide by type: Reels, videos, photos, carousels.
 - Switch off Stories, Explore, Reels and comments, or turn Instagram black and white.
+- Show only the accounts you follow: Home opens Instagram's own Following feed.
+- Hide comments in the feed and inside a single post, keeping the caption.
 - A daily time limit.
 - Optionally tell Instagram "Not interested" (off by default, at most 20 times an hour).
 - Uzbek, Russian and English.
