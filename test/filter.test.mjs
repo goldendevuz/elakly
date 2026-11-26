@@ -95,3 +95,13 @@ test("topic lists: Uzbek and Russian endings, off unless chosen", () => {
   assert.equal(why({ caption: "Bugun supermarketga bordim" }, { topics: ["marketing"] }), null);
   assert.equal(why(post), null);
 });
+
+test("every topic has words, a name in each language, and no obvious false hits", () => {
+  const { topics, topicNames } = globalThis.ElaklyFilter;
+  for (const lang of ["uz", "ru", "en"]) assert.deepEqual(Object.keys(topicNames[lang]).sort(), Object.keys(topics).sort());
+  const all = Object.keys(topics);
+  assert.equal(why({ caption: "Millionerlar farzandlariga nimani o'rgatadi" }, { topics: ["money"] }), "topic");
+  assert.equal(why({ caption: "Ставки на спорт и казино" }, { topics: ["betting"] }), "topic");
+  for (const caption of ["A better day at the golf club", "Kursdoshlar bilan tushlik", "Bugun supermarketga bordim"])
+    assert.equal(why({ caption }, { topics: all }), null, caption);
+});

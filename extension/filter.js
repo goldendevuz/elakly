@@ -59,7 +59,19 @@
 
   // Ready word lists. Matching is by words and their endings, so keep each one unambiguous.
   const topics = {
+    crypto: ["kripto", "bitcoin", "bitkoin", "ethereum", "kriptovalyut", "airdrop", "binance", "treyding", "treyder", "trading", "trader", "forex", "крипт", "биткоин", "трейдинг", "трейдер", "форекс"],
+    betting: ["kazino", "casino", "bukmeker", "1xbet", "mostbet", "melbet", "betting", "stavka qil", "aviator o'yin", "казино", "букмекер", "ставки на спорт"],
+    money: ["pul ishla", "oson pul", "passiv daromad", "millioner", "milliarder", "boy bo'l", "boyib ket", "daromad top", "make money", "passive income", "millionaire", "заработ", "пассивный доход", "миллионер", "разбогат"],
+    politics: ["siyosat", "siyosiy", "saylov", "prezident", "deputat", "politics", "election", "president", "политик", "выборы", "президент", "депутат"],
+    showbiz: ["shou-biznes", "shoubiznes", "showbiz", "celebrity", "gossip", "mish-mish", "шоу-бизнес", "шоубиз", "знаменитост", "сплетн"],
+    sport: ["futbol", "football", "chempionlar ligasi", "champions league", "premier league", "la liga", "transfer yangilik", "футбол", "лига чемпионов", "трансфер"],
     marketing: ["marketing", "marketolog", "smm", "targetolog", "targeting", "copywrit", "kopirayt", "lidgen", "brending", "branding", "sotuv voronkasi", "маркетинг", "маркетолог", "смм", "таргет", "копирайт", "лидоген", "брендинг", "воронк"],
+  };
+
+  const topicNames = {
+    uz: {"marketing": "Marketing", "crypto": "Kripto va treyding", "betting": "Qimor va stavkalar", "money": "Oson pul va boylik", "politics": "Siyosat", "showbiz": "Shou-biznes", "sport": "Futbol"},
+    ru: {"marketing": "Маркетинг", "crypto": "Крипта и трейдинг", "betting": "Казино и ставки", "money": "Лёгкие деньги", "politics": "Политика", "showbiz": "Шоу-бизнес", "sport": "Футбол"},
+    en: {"marketing": "Marketing", "crypto": "Crypto and trading", "betting": "Betting and casino", "money": "Easy money", "politics": "Politics", "showbiz": "Celebrities", "sport": "Football"},
   };
 
   // Returns the reason a post is hidden, or null.
@@ -76,7 +88,7 @@
     const word = post.caption && s.blockedWords.find((w) => matchWord(post.caption, w));
     if (word) return { id: "word", detail: word.trim() };
     const topic = post.caption && (s.topics || []).find((name) => topics[name]?.some((w) => matchWord(post.caption, w)));
-    if (topic) return { id: "topic", detail: topic[0].toUpperCase() + topic.slice(1) };
+    if (topic) return { id: "topic", detail: (topicNames[s.lang] || topicNames.en)[topic] };
     const typeKey = { reel: "hideReels", photo: "hidePhotos", video: "hideVideos", carousel: "hideCarousels" }[post.type];
     if (typeKey && s[typeKey]) return { id: "type" };
     if (s.minLikes > 0 && post.likes !== undefined && post.likes < s.minLikes) return { id: "likes", detail: String(post.likes) };
@@ -99,5 +111,5 @@
     return { used: u.seconds, left: Math.max(0, allowed - u.seconds), reached: s.dailyMinutes > 0 && u.seconds >= allowed, canExtend: !u.extended };
   }
 
-  root.ElaklyFilter = { defaults, presets, pickLang, matchWord, reason, reportable, today, limitState, topics };
+  root.ElaklyFilter = { defaults, presets, pickLang, matchWord, reason, reportable, today, limitState, topics, topicNames };
 })(globalThis);
