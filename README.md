@@ -5,6 +5,8 @@
   <img src="docs/site.png" width="760" alt="Elakly home page">
 </div>
 
+**Website:** [elakly.univel.uz](https://elakly.univel.uz)
+
 An open-source content filter for Instagram. *Elak* is Uzbek for a sieve.
 
 ## Features
@@ -45,8 +47,11 @@ No dependencies and no build step. Tests need Node.js 20 or newer; the scripts n
 ```bash
 node --test test/*.test.mjs
 scripts/dev.sh <folder>      # copy to a folder loaded unpacked; it reloads itself
-scripts/package.sh           # dist/: extension zip and the home page
+scripts/package.sh           # extension zip and the home page build
+cd site && npm run dev       # home page (React, Vite, TypeScript)
 ```
+
+CI runs the tests and builds the site. The server checks `main` every minute and, once CI has passed, builds and serves it with Docker Compose behind a Cloudflare tunnel (`deploy/`).
 
 ## License
 

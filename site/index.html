@@ -1,59 +1,20 @@
 <!doctype html>
 <html lang="uz">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Elakly</title>
-<meta name="description" content="Instagram uchun kontent filtrlari: lentada faqat siz tanlagani.">
-<link rel="icon" href="mark.svg">
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elakly</title>
+  <meta name="description" content="Instagram uchun ochiq kodli kontent filtri: lentada faqat siz tanlagani.">
+  <meta property="og:title" content="Elakly">
+  <meta property="og:description" content="Your Instagram feed, only what you choose. Open source.">
+  <meta property="og:url" content="https://elakly.univel.uz/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://elakly.univel.uz/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/mark.svg">
 </head>
 <body>
-<header>
-  <a class="logo" href="#"><img src="mark.svg" alt="">Elakly</a>
-  <div class="langs"><button type="button" data-lang="uz">UZ</button><button type="button" data-lang="ru">RU</button><button type="button" data-lang="en">EN</button></div>
-</header>
-<main>
-  <section class="hero">
-    <div>
-      <h1 data-t="line"></h1>
-      <p class="lead" data-t="lead"></p>
-      <a class="primary" href="#demo" data-t="try"></a>
-      <p class="soon" data-t="soon"></p>
-    </div>
-    <div class="orbit" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
-  </section>
-
-  <section id="demo">
-    <h2 data-t="demoTitle"></h2><p data-t="demoText"></p>
-    <div class="demo">
-      <form id="rules">
-        <label><span data-t="ads"></span><input type="checkbox" name="hideAds"></label>
-        <label><span data-t="suggested"></span><input type="checkbox" name="hideSuggested"></label>
-        <label><span data-t="reels"></span><input type="checkbox" name="hideReels"></label>
-        <label class="range"><span><span data-t="likes"></span>: <output id="likes">0</output></span><input type="range" name="minLikes" min="0" max="5000" step="100" value="0"></label>
-        <p aria-live="polite"><b id="count">0</b> <span data-t="hidden"></span></p>
-      </form>
-      <ol id="feed"></ol>
-    </div>
-  </section>
-
-  <section>
-    <h2 data-t="rulesTitle"></h2>
-    <ul class="grid">
-      <li><h3 data-t="f1"></h3><p data-t="f1t"></p></li>
-      <li><h3 data-t="f2"></h3><p data-t="f2t"></p></li>
-      <li><h3 data-t="f3"></h3><p data-t="f3t"></p></li>
-      <li><h3 data-t="f4"></h3><p data-t="f4t"></p></li>
-    </ul>
-  </section>
-
-  <section class="honest">
-    <h2 data-t="privacyTitle"></h2><p data-t="privacy"></p><p data-t="limits"></p>
-  </section>
-</main>
-<footer><span>© 2026 Elakly</span><span data-t="legal"></span></footer>
-<script src="filter.js"></script>
-<script src="app.js"></script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
