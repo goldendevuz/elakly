@@ -1,0 +1,60 @@
+/* Monochrome, kept soft for the eyes: graphite and warm paper, never pure black on pure white. */
+@font-face { font-family: "HG Serif"; src: url("fonts/serif.woff2") format("woff2"); font-style: italic; }
+:root { color-scheme: dark; --bg: #121214; --card: #1b1b1e; --line: rgba(233,231,226,.09); --ink: #e4e2dd; --dim: #9a9893; --well: #0f0f11; --lift: 0 10px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.045); }
+@media (prefers-color-scheme: light) { :root { color-scheme: light; --bg: #ecebe7; --card: #f6f5f2; --line: rgba(20,20,22,.09); --ink: #222225; --dim: #66645f; --well: #e4e2dd; --lift: 0 10px 22px rgba(40,36,28,.09), inset 0 1px 0 rgba(255,255,255,.7); } }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { overflow: hidden; }
+body { width: 360px; height: 580px; display: flex; flex-direction: column; margin: 0; padding: 16px 16px 0; font: 13px/1.45 system-ui, sans-serif; color: var(--ink); background: var(--bg); position: relative; isolation: isolate; overflow: hidden; }
+body::before { content: ""; position: absolute; z-index: -1; top: 0; right: 0; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--ink) 13%, transparent), transparent 68%); animation: drift 14s ease-in-out infinite alternate; }
+@keyframes drift { to { transform: translate(-100px, 60px); } }
+header { display: flex; justify-content: space-between; align-items: center; }
+h1 { margin: 0; font: italic 400 34px/1 "HG Serif", Georgia, serif; display: flex; align-items: center; gap: 9px; }
+h1 img { width: 30px; }
+.hero { display: flex; align-items: center; gap: 14px; margin-top: 14px; padding: 16px; border-radius: 22px; border: 1px solid var(--line); background: linear-gradient(155deg, color-mix(in srgb, var(--card) 92%, var(--ink)), var(--card) 60%); box-shadow: var(--lift); cursor: pointer; transition: transform .35s cubic-bezier(.3,1.7,.5,1); }
+.hero:active { transform: scale(.975); }
+.hero-text { flex: 1; display: grid; }
+.hero strong { font-size: 15px; }
+.hero small { color: var(--dim); }
+.hero small b { font: italic 400 22px "HG Serif", Georgia, serif; color: var(--ink); }
+/* The lens: three rings that settle into a tilt while filtering and flatten when off. */
+.lens { position: relative; flex: none; width: 46px; height: 46px; perspective: 140px; }
+.lens i { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid var(--ink); animation: turn 9s linear infinite; transition: inset .5s, opacity .5s; }
+.lens i:nth-child(2) { inset: 8px; opacity: .7; animation-duration: 6s; animation-direction: reverse; }
+.lens i:nth-child(3) { inset: 17px; background: var(--ink); animation: none; }
+@keyframes turn { from { transform: rotate(0) rotateX(52deg); } to { transform: rotate(360deg) rotateX(52deg); } }
+.off .lens i { animation-play-state: paused; opacity: .3; }
+nav { --at: 0; display: grid; grid-template-columns: repeat(3, 1fr); position: relative; margin-top: 14px; padding: 4px; border-radius: 999px; background: var(--well); }
+nav::before { content: ""; position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 999px; background: var(--ink); transform: translateX(calc(var(--at) * 100%)); transition: transform .45s cubic-bezier(.3,1.35,.5,1); }
+nav button { position: relative; border: 0; background: none; color: var(--dim); padding: 7px 0; font: 600 12px system-ui, sans-serif; cursor: pointer; transition: color .3s; }
+nav button[aria-selected="true"] { color: var(--bg); }
+header, .hero, nav { flex: none; }
+/* The scroller reaches the window edge, so the thin bar sits beside the cards, not over them. */
+main { flex: 1; min-height: 0; overflow: hidden auto; overscroll-behavior: contain; margin-right: -16px; padding: 0 16px 16px 0; transition: opacity .3s; -webkit-mask-image: linear-gradient(transparent, #000 12px, #000 calc(100% - 18px), transparent); mask-image: linear-gradient(transparent, #000 12px, #000 calc(100% - 18px), transparent); }
+main::-webkit-scrollbar, textarea::-webkit-scrollbar { width: 10px; }
+main::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 999px; background: color-mix(in srgb, var(--ink) 24%, transparent) padding-box; }
+main::-webkit-scrollbar-thumb:hover, textarea::-webkit-scrollbar-thumb:hover { background-color: color-mix(in srgb, var(--ink) 48%, transparent); }
+input[type=number] { appearance: textfield; }
+input[type=number]::-webkit-inner-spin-button { appearance: none; }
+.off main { opacity: .45; }
+section { margin-top: 12px; padding: 12px 14px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); box-shadow: var(--lift); animation: rise .45s cubic-bezier(.2,.9,.3,1.2) backwards; }
+section:nth-child(2) { animation-delay: .06s; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+h2 { margin: 0 0 6px; font: italic 400 19px "HG Serif", Georgia, "Times New Roman", serif; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 0; }
+.row + .row { border-top: 1px solid var(--line); }
+input[type=checkbox] { appearance: none; flex: none; width: 40px; height: 23px; margin: 0; border-radius: 999px; background: var(--well); box-shadow: inset 0 0 0 1px var(--line), inset 0 2px 4px rgba(0,0,0,.18); position: relative; cursor: pointer; transition: background .3s; }
+input[type=checkbox]::after { content: ""; position: absolute; top: 3px; left: 3px; width: 17px; height: 17px; border-radius: 50%; background: var(--dim); box-shadow: 0 2px 5px rgba(0,0,0,.3); transition: transform .4s cubic-bezier(.3,1.7,.5,1), background .3s, width .2s; }
+input[type=checkbox]:active::after { width: 21px; }
+input[type=checkbox]:checked { background: var(--ink); }
+input[type=checkbox]:checked::after { transform: translateX(17px); background: var(--bg); }
+input[type=checkbox]:checked:active::after { transform: translateX(13px); }
+input[type=number], textarea, select { background: var(--well); color: var(--ink); border: 1px solid var(--line); border-radius: 11px; padding: 6px 9px; font: inherit; }
+input[type=number] { width: 96px; text-align: right; }
+select { border-radius: 999px; font-size: 12px; }
+textarea { width: 100%; margin-bottom: 10px; resize: vertical; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+#restore { border: 0; border-radius: 999px; padding: 6px 13px; background: var(--ink); color: var(--bg); font-weight: 600; cursor: pointer; }
+p { margin: 6px 0 0; color: var(--dim); font-size: 11px; }
+p + h2 { margin-top: 16px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
