@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="uz">
+<head><meta charset="utf-8"><link rel="stylesheet" href="popup.css"></head>
+<body>
+  <header>
+    <h1><img src="icons/48.png" alt="">HypeGram</h1>
+    <select id="lang" aria-label="Language"><option value="uz">O'zbekcha</option><option value="ru">Русский</option><option value="en">English</option></select>
+  </header>
+  <label class="hero">
+    <span class="lens" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="hero-text"><strong data-t="enabled"></strong><small><b id="rules">0</b> <span data-t="rules"></span></small></span>
+    <input type="checkbox" data-key="enabled">
+  </label>
+  <nav role="tablist">
+    <button type="button" role="tab" data-tab="0" data-t="tabClean"></button>
+    <button type="button" role="tab" data-tab="1" data-t="tabLimits"></button>
+    <button type="button" role="tab" data-tab="2" data-t="tabLists"></button>
+  </nav>
+  <main>
+    <div class="panel">
+  <section>
+    <h2 data-t="clean"></h2>
+    <label class="row"><span data-t="hideAds"></span><input type="checkbox" data-key="hideAds"></label>
+    <label class="row"><span data-t="hideSuggested"></span><input type="checkbox" data-key="hideSuggested"></label>
+    <label class="row"><span data-t="hidePaid"></span><input type="checkbox" data-key="hidePaid"></label>
+    <label class="row"><span data-t="followingOnly"></span><input type="checkbox" data-key="followingOnly"></label>
+  </section>
+  <section>
+    <h2 data-t="types"></h2>
+    <label class="row"><span data-t="hideReels"></span><input type="checkbox" data-key="hideReels"></label>
+    <label class="row"><span data-t="hideVideos"></span><input type="checkbox" data-key="hideVideos"></label>
+    <label class="row"><span data-t="hidePhotos"></span><input type="checkbox" data-key="hidePhotos"></label>
+    <label class="row"><span data-t="hideCarousels"></span><input type="checkbox" data-key="hideCarousels"></label>
+  </section>
+    </div>
+    <div class="panel" hidden>
+  <section>
+    <h2 data-t="numbers"></h2>
+    <label class="row"><span data-t="minLikes"></span><input type="number" min="0" data-key="minLikes"></label>
+    <label class="row"><span data-t="minViews"></span><input type="number" min="0" data-key="minViews"></label>
+    <label class="row"><span data-t="minSeconds"></span><input type="number" min="0" data-key="minSeconds"></label>
+    <label class="row"><span data-t="maxSeconds"></span><input type="number" min="0" data-key="maxSeconds"></label>
+    <p data-t="zero"></p>
+  </section>
+    </div>
+    <div class="panel" hidden>
+  <section>
+    <h2 data-t="blockedUsers"></h2>
+    <textarea data-key="blockedUsers" rows="3" placeholder="@username"></textarea>
+    <h2 data-t="blockedWords"></h2>
+    <textarea data-key="blockedWords" rows="3" placeholder="#hashtag"></textarea>
+    <p data-t="lines"></p>
+  </section>
+  <section>
+    <div class="row"><span><span data-t="hiddenPosts"></span>: <b id="hidden-count">0</b></span><button id="restore" type="button" data-t="restore"></button></div>
+  </section>
+    </div>
+  </main>
+  <script src="filter.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
