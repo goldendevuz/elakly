@@ -75,5 +75,5 @@
     return null;
   }
 
-  root.HypeGramFilter = { defaults, presets, pickLang, matchWord, reason };
+  root.ElaklyFilter = { defaults, presets, pickLang, matchWord, reason };
 })(globalThis);

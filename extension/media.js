@@ -50,5 +50,5 @@
     return out;
   }
 
-  root.HypeGramMedia = { collect };
+  root.ElaklyMedia = { collect };
 })(globalThis);

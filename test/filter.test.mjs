@@ -5,8 +5,8 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import "../extension/media.js";
 
-const { defaults, matchWord, reason } = globalThis.HypeGramFilter;
-const { collect } = globalThis.HypeGramMedia;
+const { defaults, matchWord, reason } = globalThis.ElaklyFilter;
+const { collect } = globalThis.ElaklyMedia;
 const s = (patch) => ({ ...defaults, ...patch });
 const why = (post, patch) => reason(post, s(patch))?.id ?? null;
 
@@ -57,7 +57,7 @@ test("reads posts and ads from nested page data", () => {
 });
 
 test("switching presets leaves nothing behind", () => {
-  const { presets } = globalThis.HypeGramFilter;
+  const { presets } = globalThis.ElaklyFilter;
   const after = { ...defaults, ...presets.quality, ...presets.focus };
   assert.equal(after.minLikes, 0);
   assert.equal(after.hidePaid, false);
@@ -65,7 +65,7 @@ test("switching presets leaves nothing behind", () => {
 });
 
 test("language follows the browser", () => {
-  const { pickLang } = globalThis.HypeGramFilter;
+  const { pickLang } = globalThis.ElaklyFilter;
   assert.equal(pickLang(["uz-Latn-UZ", "ru"]), "uz");
   assert.equal(pickLang(["de-DE", "ru-RU"]), "ru");
   assert.equal(pickLang(["fr"]), "en");
@@ -75,5 +75,5 @@ test("language follows the browser", () => {
 test("loads in a browser, where the language list exists", () => {
   const page = { navigator: { languages: ["ru-RU"] } };
   vm.runInNewContext(readFileSync(new URL("../extension/filter.js", import.meta.url), "utf8"), page);
-  assert.equal(page.HypeGramFilter.defaults.lang, "ru");
+  assert.equal(page.ElaklyFilter.defaults.lang, "ru");
 });

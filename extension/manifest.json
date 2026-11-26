@@ -1,13 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "HypeGram",
+  "name": "Elakly",
   "version": "0.1.0",
   "description": "Content filters for Instagram. Not affiliated with Instagram or Meta.",
   "permissions": ["storage"],
   "icons": { "16": "icons/16.png", "32": "icons/32.png", "48": "icons/48.png", "128": "icons/128.png" },
   "host_permissions": ["https://www.instagram.com/*"],
   "background": { "service_worker": "background.js" },
-  "action": { "default_popup": "popup.html", "default_title": "HypeGram" },
+  "action": { "default_popup": "popup.html", "default_title": "Elakly" },
   "content_scripts": [
     { "matches": ["https://www.instagram.com/*"], "js": ["media.js", "hook.js"], "run_at": "document_start", "world": "MAIN" },
     { "matches": ["https://www.instagram.com/*"], "js": ["filter.js", "content.js"], "css": ["content.css"], "run_at": "document_start" }

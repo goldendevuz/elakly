@@ -1,4 +1,4 @@
-# HypeGram brand
+# Elakly brand
 
 ## Idea
 The noise orbits; what you chose stays in the centre.
@@ -10,7 +10,7 @@ The noise orbits; what you chose stays in the centre.
 
 ## Mark
 `mark.svg`: one tilted orbit and one solid point. Keep clear space of a quarter of its width. Do not recolour, rotate or outline it.
-The wordmark is "HypeGram" in Instrument Serif Italic (SIL OFL 1.1).
+The wordmark is "Elakly" in Instrument Serif Italic (SIL OFL 1.1).
 
 ## Colour
 Monochrome, soft on the eyes. Never pure black on pure white.
@@ -32,11 +32,20 @@ Slow and physical: orbits, springy switches, short rises. Nothing flashes. All m
 
 ## Voice
 Calm, direct, honest. Say what the filter does and what it cannot do. No invented numbers, reviews or urgency.
-Always state that HypeGram is not affiliated with Instagram or Meta, and never use their logos or colours.
+Always state that Elakly is not affiliated with Instagram or Meta, and never use their logos or colours.
 
 ## Languages
 Uzbek, Russian and English, for the site and the extension. The browser's language chooses; any other language gets English. `?lang=uz|ru|en` links to one directly.
 All three are kept complete: a text is added to all of them or to none. Another language is added only when real users ask for it.
 
+## Name
+"Elakly", from the Uzbek *elak*, a sieve: it lets through what you chose. It replaced the working name HypeGram, whose "-gram" ending risked a conflict with Meta's trademarks.
+
+Screening on 2026-11-26 (a preliminary search, not legal clearance):
+- TMview and USPTO wordmark search for "elakly": no results.
+- elakly.com and elakly.app: no RDAP record; elakly.uz: not found in whois. None registered yet.
+- No app with this name found in the Apple search API.
+- Near mark: "ELAK" has filings in several countries, including software classes (for example Austria 2475/2001, class 9/42, and India 486444, class 9).
+
 ## Open before launch
-The "-gram" ending may conflict with Meta's trademarks. Get a trademark check before public marketing, a domain purchase or a store listing.
+Have a trademark lawyer assess similarity to "ELAK" in the target countries, then register the domains and file the mark.

@@ -1,14 +1,14 @@
 // Runs inside the page: watches parsed JSON and passes post facts to the filter.
 // It only reads. It sends no requests and changes no responses.
 (function () {
-  const { collect } = globalThis.HypeGramMedia;
+  const { collect } = globalThis.ElaklyMedia;
   const seen = new Map();
   let queue = [];
   let timer = 0;
 
   const flush = () => {
     timer = 0;
-    window.postMessage({ source: "hypegram", media: queue }, location.origin);
+    window.postMessage({ source: "elakly", media: queue }, location.origin);
     queue = [];
   };
 
@@ -39,7 +39,7 @@
 
   // The filter script may start after some data has already gone by.
   window.addEventListener("message", (e) => {
-    if (e.source === window && e.data && e.data.source === "hypegram-ready") {
+    if (e.source === window && e.data && e.data.source === "elakly-ready") {
       queue.push(...seen.values());
       if (queue.length && !timer) timer = setTimeout(flush, 0);
     }

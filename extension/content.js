@@ -1,6 +1,6 @@
 // Applies the filters to what Instagram draws.
 (function () {
-  const { defaults, reason } = globalThis.HypeGramFilter;
+  const { defaults, reason } = globalThis.ElaklyFilter;
   const media = new Map();
   const shown = new Set(); // posts the viewer chose to open anyway
   const counted = new Set();
@@ -50,7 +50,7 @@
       badge.id = "hg-badge";
       document.body.append(badge);
     }
-    badge.textContent = `HypeGram · ${counted.size} ${t().count}`;
+    badge.textContent = `Elakly · ${counted.size} ${t().count}`;
   }
 
   function button(cls, title, onClick) {
@@ -169,12 +169,12 @@
   }
 
   window.addEventListener("message", (e) => {
-    if (e.source !== window || e.data?.source !== "hypegram" || !Array.isArray(e.data.media)) return;
+    if (e.source !== window || e.data?.source !== "elakly" || !Array.isArray(e.data.media)) return;
     for (const m of e.data.media) media.set(m.code, m);
     lastPath = "";
     schedule();
   });
-  window.postMessage({ source: "hypegram-ready" }, location.origin);
+  window.postMessage({ source: "elakly-ready" }, location.origin);
 
   chrome.storage.local.get("settings").then((r) => {
     settings = { ...defaults, ...r.settings };

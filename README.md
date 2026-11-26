@@ -1,4 +1,4 @@
-# HypeGram
+# Elakly
 
 Content filters for Instagram. A closed, proprietary product.
 
@@ -16,5 +16,5 @@ scripts/package.sh           # dist/: extension zip and the site
 
 Languages: Uzbek, Russian, English (browser language, otherwise English).
 
-© 2026 HypeGram. All rights reserved. Third-party: Instrument Serif (SIL OFL 1.1, `extension/fonts/LICENSE.txt`).
+© 2026 Elakly. All rights reserved. Third-party: Instrument Serif (SIL OFL 1.1, `extension/fonts/LICENSE.txt`).
 Not affiliated with or endorsed by Instagram or Meta.
