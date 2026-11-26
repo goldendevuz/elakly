@@ -224,6 +224,58 @@
     }
   }
 
+  // Whole parts of Instagram's interface that the viewer switched off.
+  const COMMENT = 'svg[aria-label="Comment"], svg[aria-label="Комментировать"], svg[aria-label="Комментарий"], svg[aria-label="Fikr bildirish"], svg[aria-label="Izoh qoldirish"]';
+  const ALL_COMMENTS = /^(view (all )?[\d,. ]*comments?|view 1 comment|посмотреть (все )?комментарии.*|barcha .*izohlarni ko.rish.*|add a comment.*|добавьте комментарий.*|izoh qo.shing.*)$/i;
+
+  function surface() {
+    const on = (key) => settings.enabled && settings[key];
+    const root = document.documentElement;
+    root.classList.toggle("hg-gray", on("grayscale"));
+    const hidden = new Set();
+
+    for (const [key, href] of [["hideReels", "/reels/"], ["hideExplore", "/explore/"]]) {
+      if (!on(key)) continue;
+      // Opening the section by its address goes home instead. Search stays available.
+      if (location.pathname.startsWith(href) && !location.pathname.startsWith("/explore/search")) location.replace("/");
+      for (let el of document.querySelectorAll(`a[href="${href}"]`)) {
+        // Take the whole menu slot, not just the link inside it.
+        while (el.parentElement && el.parentElement.children.length === 1 && el.parentElement !== document.body) el = el.parentElement;
+        hidden.add(el);
+      }
+    }
+
+    if (on("hideStories")) {
+      if (location.pathname.startsWith("/stories/")) location.replace("/");
+      for (const ring of document.querySelectorAll("ul li canvas")) {
+        if (ring.closest("article, header, [role='dialog']")) continue;
+        const list = ring.closest("ul");
+        const strip = list.closest('[role="presentation"]');
+        // The strip's parent also carries its scroll arrows.
+        const box = strip?.parentElement && !strip.parentElement.querySelector("article") ? strip.parentElement : strip || list;
+        hidden.add(box);
+      }
+    }
+
+    if (on("hideComments")) {
+      for (const icon of document.querySelectorAll(COMMENT)) {
+        if (icon.closest("nav")) continue;
+        let slot = icon.closest('button, [role="button"]') || icon.parentElement;
+        // Up to the slot that sits in the row of actions; the number beside it goes too.
+        while (slot.parentElement && slot.parentElement.children.length === 1) slot = slot.parentElement;
+        hidden.add(slot);
+        const next = slot.nextElementSibling;
+        if (next && !next.querySelector("svg") && /^[\d.,\s]+[KMBkmb]?$/.test(next.textContent.trim())) hidden.add(next);
+      }
+      for (const el of document.querySelectorAll("article a, article span, article textarea")) {
+        if (ALL_COMMENTS.test((el.placeholder || el.textContent).trim())) hidden.add(el.closest("a, form") || el);
+      }
+    }
+
+    for (const el of document.querySelectorAll(".hg-off")) if (!hidden.has(el)) el.classList.remove("hg-off");
+    for (const el of hidden) el.classList.add("hg-off");
+  }
+
   // The full-screen Reels viewer: move past a filtered reel.
   function reels() {
     const code = location.pathname.match(/^\/reels\/([\w-]{5,})/)?.[1];
@@ -255,6 +307,7 @@
       feed();
       grid();
       people();
+      surface();
       reels();
       if (!settings.enabled) document.getElementById("hg-badge")?.remove();
     }, 120);
