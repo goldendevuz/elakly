@@ -7,6 +7,7 @@
     hideSuggested: true,
     hidePaid: false,
     silent: true,
+    hidePeople: true,
     tellInstagram: false,
     followingOnly: false,
     hideReels: false,
@@ -78,6 +79,8 @@
   function reason(post, s) {
     if (!s.enabled) return null;
     if (post.code && s.hiddenPosts.includes(post.code)) return { id: "manual" };
+    // Another tool removed the picture or video; the likes and caption left behind would only tempt.
+    if (post.leftover) return { id: "leftover" };
     if (s.hideAds && post.ad) return { id: "ad" };
     if (s.hideSuggested && post.suggested) return { id: "suggested" };
     if (s.hidePaid && post.paid) return { id: "paid" };

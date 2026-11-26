@@ -105,3 +105,8 @@ test("every topic has words, a name in each language, and no obvious false hits"
   for (const caption of ["A better day at the golf club", "Kursdoshlar bilan tushlik", "Bugun supermarketga bordim"])
     assert.equal(why({ caption }, { topics: all }), null, caption);
 });
+
+test("a post stripped by another tool is removed whole", () => {
+  assert.equal(why({ leftover: true }), "leftover");
+  assert.equal(why({ leftover: true }, { enabled: false }), null);
+});

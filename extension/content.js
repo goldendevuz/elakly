@@ -11,9 +11,9 @@
   let lastPath = "";
 
   const text = {
-    uz: { hidden: "Yashirildi", show: "Ko'rsatish", hide: "Bu postni yashirish", ad: "reklama", suggested: "tavsiya", paid: "homiylik", user: "bloklangan akkaunt", notFollowing: "obuna emassiz", topic: "mavzu", word: "bloklangan so'z", type: "post turi", likes: "like kam", views: "ko'rish kam", duration: "davomiyligi", manual: "o'zingiz yashirgansiz", count: "yashirildi" },
-    ru: { hidden: "Скрыто", show: "Показать", hide: "Скрыть этот пост", ad: "реклама", suggested: "рекомендация", paid: "партнёрство", user: "аккаунт заблокирован", notFollowing: "вы не подписаны", topic: "тема", word: "слово в чёрном списке", type: "тип поста", likes: "мало лайков", views: "мало просмотров", duration: "длительность", manual: "скрыто вами", count: "скрыто" },
-    en: { hidden: "Hidden", show: "Show", hide: "Hide this post", ad: "ad", suggested: "suggested", paid: "paid partnership", user: "blocked account", notFollowing: "not followed", topic: "topic", word: "blocked word", type: "post type", likes: "few likes", views: "few views", duration: "length", manual: "hidden by you", count: "hidden" },
+    uz: { leftover: "ichi bo'sh qolgan", hidden: "Yashirildi", show: "Ko'rsatish", hide: "Bu postni yashirish", ad: "reklama", suggested: "tavsiya", paid: "homiylik", user: "bloklangan akkaunt", notFollowing: "obuna emassiz", topic: "mavzu", word: "bloklangan so'z", type: "post turi", likes: "like kam", views: "ko'rish kam", duration: "davomiyligi", manual: "o'zingiz yashirgansiz", count: "yashirildi" },
+    ru: { leftover: "пустой остаток", hidden: "Скрыто", show: "Показать", hide: "Скрыть этот пост", ad: "реклама", suggested: "рекомендация", paid: "партнёрство", user: "аккаунт заблокирован", notFollowing: "вы не подписаны", topic: "тема", word: "слово в чёрном списке", type: "тип поста", likes: "мало лайков", views: "мало просмотров", duration: "длительность", manual: "скрыто вами", count: "скрыто" },
+    en: { leftover: "empty leftover", hidden: "Hidden", show: "Show", hide: "Hide this post", ad: "ad", suggested: "suggested", paid: "paid partnership", user: "blocked account", notFollowing: "not followed", topic: "topic", word: "blocked word", type: "post type", likes: "few likes", views: "few views", duration: "length", manual: "hidden by you", count: "hidden" },
   };
   const t = () => text[settings.lang] || text.uz;
 
@@ -40,6 +40,10 @@
     // Also read what is on screen: the caption, and Instagram's description of the picture (including text in it).
     const alts = [...el.querySelectorAll("img[alt]")].map((i) => i.alt);
     post.caption = [post.caption, ...pieces, ...alts].filter(Boolean).join("\n");
+    const video = el.querySelector("video");
+    const wrap = video?.closest("a");
+    // Only a link switched off by someone else counts; our own hidden notes are on the article itself.
+    if (wrap && el.contains(wrap) && getComputedStyle(wrap).display === "none") post.leftover = true;
     if (!post.user) {
       const a = [...el.querySelectorAll('a[href^="/"]')].find((x) => /^\/[\w.]+\/$/.test(x.getAttribute("href")));
       if (a) post.user = a.getAttribute("href").slice(1, -1).toLowerCase();
@@ -197,6 +201,29 @@
     }
   }
 
+  // "Suggested for you" account boxes, in the side column and between posts.
+  const FOLLOW = /^(follow|подписаться|obuna bo['‘’ʻ]lish|kuzatish)$/i;
+  function people() {
+    for (const el of document.querySelectorAll(".hg-people")) if (!settings.enabled || !settings.hidePeople) el.classList.remove("hg-people");
+    if (!settings.enabled || !settings.hidePeople) return;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: (n) => (SUGGESTED.test(n.textContent.trim()) && !n.parentElement.closest("article, .hg-people, [role='dialog']") ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
+    });
+    const found = [];
+    while (walker.nextNode()) found.push(walker.currentNode.parentElement);
+    for (let el of found) {
+      // The box is the closest ancestor offering to follow at least two accounts, and holding no post.
+      for (let depth = 0; el && el !== document.body && depth < 8; depth++, el = el.parentElement) {
+        if (el.matches("main, [role='main']") || el.querySelector("article")) break;
+        const offers = [...el.querySelectorAll('button, [role="button"]')].filter((b) => FOLLOW.test(b.textContent.trim())).length;
+        if (offers >= 2) {
+          el.classList.add("hg-people");
+          break;
+        }
+      }
+    }
+  }
+
   // The full-screen Reels viewer: move past a filtered reel.
   function reels() {
     const code = location.pathname.match(/^\/reels\/([\w-]{5,})/)?.[1];
@@ -227,6 +254,7 @@
       pending = 0;
       feed();
       grid();
+      people();
       reels();
       if (!settings.enabled) document.getElementById("hg-badge")?.remove();
     }, 120);

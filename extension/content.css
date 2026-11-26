@@ -2,7 +2,7 @@ article.hg-post { position: relative; }
 article > .hg-hide { position: absolute; top: 12px; left: -40px; z-index: 5; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(127,127,127,.22); color: inherit; cursor: pointer; opacity: .55; transition: opacity .2s, transform .2s; }
 article > .hg-hide:hover { opacity: 1; transform: scale(1.12); background: #e9e7e2; color: #111113; }
 article.hg-collapsed > :not(.hg-note) { display: none !important; }
-article.hg-gone { display: none !important; }
+article.hg-gone, .hg-people { display: none !important; }
 html.hg-acting [role="dialog"], html.hg-acting [role="menu"] { opacity: 0 !important; }
 article.hg-veiled { position: relative; }
 article.hg-veiled > :not(.hg-note) { visibility: hidden !important; }
