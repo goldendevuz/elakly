@@ -38,6 +38,12 @@
     </div>
     <div class="panel" hidden>
   <section>
+    <h2 data-t="limitTitle"></h2>
+    <label class="row"><span data-t="dailyMinutes"></span><input type="number" min="0" data-key="dailyMinutes"></label>
+    <p><span data-t="usedToday"></span>: <b id="used">0</b></p>
+    <p data-t="limitNote"></p>
+  </section>
+  <section>
     <h2 data-t="numbers"></h2>
     <label class="row"><span data-t="minLikes"></span><input type="number" min="0" data-key="minLikes"></label>
     <label class="row"><span data-t="minViews"></span><input type="number" min="0" data-key="minViews"></label>
@@ -48,6 +54,9 @@
     </div>
     <div class="panel" hidden>
   <section>
+    <h2 data-t="topicsTitle"></h2>
+    <label class="row"><span>Marketing</span><input type="checkbox" data-topic="marketing"></label>
+    <p data-t="topicsNote"></p>
     <h2 data-t="blockedUsers"></h2>
     <textarea data-key="blockedUsers" rows="3" placeholder="@username"></textarea>
     <h2 data-t="blockedWords"></h2>

@@ -13,12 +13,14 @@
     hidePhotos: false,
     hideVideos: false,
     hideCarousels: false,
+    dailyMinutes: 0,
     minLikes: 0,
     minViews: 0,
     minSeconds: 0,
     maxSeconds: 0,
     blockedUsers: [],
     blockedWords: [],
+    topics: [],
     hiddenPosts: [],
   };
 
@@ -53,7 +55,12 @@
   }
 
   // Only unwanted content is reported to Instagram; limits such as likes or length stay local.
-  const reportable = ["ad", "suggested", "paid", "word", "user", "manual"];
+  const reportable = ["ad", "suggested", "paid", "word", "topic", "user", "manual"];
+
+  // Ready word lists. Matching is by words and their endings, so keep each one unambiguous.
+  const topics = {
+    marketing: ["marketing", "marketolog", "smm", "targetolog", "targeting", "copywrit", "kopirayt", "lidgen", "brending", "branding", "sotuv voronkasi", "маркетинг", "маркетолог", "смм", "таргет", "копирайт", "лидоген", "брендинг", "воронк"],
+  };
 
   // Returns the reason a post is hidden, or null.
   function reason(post, s) {
@@ -68,6 +75,8 @@
     if (s.followingOnly && post.following === false) return { id: "notFollowing" };
     const word = post.caption && s.blockedWords.find((w) => matchWord(post.caption, w));
     if (word) return { id: "word", detail: word.trim() };
+    const topic = post.caption && (s.topics || []).find((name) => topics[name]?.some((w) => matchWord(post.caption, w)));
+    if (topic) return { id: "topic", detail: topic[0].toUpperCase() + topic.slice(1) };
     const typeKey = { reel: "hideReels", photo: "hidePhotos", video: "hideVideos", carousel: "hideCarousels" }[post.type];
     if (typeKey && s[typeKey]) return { id: "type" };
     if (s.minLikes > 0 && post.likes !== undefined && post.likes < s.minLikes) return { id: "likes", detail: String(post.likes) };
@@ -80,5 +89,15 @@
     return null;
   }
 
-  root.ElaklyFilter = { defaults, presets, pickLang, matchWord, reason, reportable };
+  const EXTRA = 5 * 60; // the one extension allowed per day
+  // The local calendar day: the limit resets at the viewer's own midnight.
+  const dayKey = (d) => [d.getFullYear(), d.getMonth() + 1, d.getDate()].map((n) => String(n).padStart(2, "0")).join("-");
+  const today = (usage, now) => (usage && usage.day === dayKey(now) ? usage : { day: dayKey(now), seconds: 0, extended: false });
+  function limitState(usage, s, now) {
+    const u = today(usage, now);
+    const allowed = s.dailyMinutes * 60 + (u.extended ? EXTRA : 0);
+    return { used: u.seconds, left: Math.max(0, allowed - u.seconds), reached: s.dailyMinutes > 0 && u.seconds >= allowed, canExtend: !u.extended };
+  }
+
+  root.ElaklyFilter = { defaults, presets, pickLang, matchWord, reason, reportable, today, limitState, topics };
 })(globalThis);

@@ -1,6 +1,6 @@
 // Applies the filters to what Instagram draws.
 (function () {
-  const { defaults, reason, reportable } = globalThis.ElaklyFilter;
+  const { defaults, reason, reportable, today, limitState } = globalThis.ElaklyFilter;
   const media = new Map();
   const shown = new Set(); // posts the viewer chose to open anyway
   const counted = new Set();
@@ -11,9 +11,9 @@
   let lastPath = "";
 
   const text = {
-    uz: { hidden: "Yashirildi", show: "Ko'rsatish", hide: "Bu postni yashirish", ad: "reklama", suggested: "tavsiya", paid: "homiylik", user: "bloklangan akkaunt", notFollowing: "obuna emassiz", word: "bloklangan so'z", type: "post turi", likes: "like kam", views: "ko'rish kam", duration: "davomiyligi", manual: "o'zingiz yashirgansiz", count: "yashirildi" },
-    ru: { hidden: "Скрыто", show: "Показать", hide: "Скрыть этот пост", ad: "реклама", suggested: "рекомендация", paid: "партнёрство", user: "аккаунт заблокирован", notFollowing: "вы не подписаны", word: "слово в чёрном списке", type: "тип поста", likes: "мало лайков", views: "мало просмотров", duration: "длительность", manual: "скрыто вами", count: "скрыто" },
-    en: { hidden: "Hidden", show: "Show", hide: "Hide this post", ad: "ad", suggested: "suggested", paid: "paid partnership", user: "blocked account", notFollowing: "not followed", word: "blocked word", type: "post type", likes: "few likes", views: "few views", duration: "length", manual: "hidden by you", count: "hidden" },
+    uz: { hidden: "Yashirildi", show: "Ko'rsatish", hide: "Bu postni yashirish", ad: "reklama", suggested: "tavsiya", paid: "homiylik", user: "bloklangan akkaunt", notFollowing: "obuna emassiz", topic: "mavzu", word: "bloklangan so'z", type: "post turi", likes: "like kam", views: "ko'rish kam", duration: "davomiyligi", manual: "o'zingiz yashirgansiz", count: "yashirildi" },
+    ru: { hidden: "Скрыто", show: "Показать", hide: "Скрыть этот пост", ad: "реклама", suggested: "рекомендация", paid: "партнёрство", user: "аккаунт заблокирован", notFollowing: "вы не подписаны", topic: "тема", word: "слово в чёрном списке", type: "тип поста", likes: "мало лайков", views: "мало просмотров", duration: "длительность", manual: "скрыто вами", count: "скрыто" },
+    en: { hidden: "Hidden", show: "Show", hide: "Hide this post", ad: "ad", suggested: "suggested", paid: "paid partnership", user: "blocked account", notFollowing: "not followed", topic: "topic", word: "blocked word", type: "post type", likes: "few likes", views: "few views", duration: "length", manual: "hidden by you", count: "hidden" },
   };
   const t = () => text[settings.lang] || text.uz;
 
@@ -27,12 +27,19 @@
     const link = el.querySelector('a[href*="/p/"], a[href*="/reel/"]');
     const code = codeOf(link?.getAttribute("href"));
     const post = { code, ...media.get(code) };
-    const spans = [...el.querySelectorAll("span, div, a")].filter((x) => !x.childElementCount && !x.closest(".hg-note")).slice(0, 60);
-    for (const s of spans) {
-      const label = s.textContent.trim();
-      if (AD.test(label)) post.ad = true;
-      if (SUGGESTED.test(label)) post.suggested = true;
+    // Labels may sit in any element, sometimes beside other markup, so read the text pieces themselves.
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+      acceptNode: (n) => (!n.textContent.trim() || n.parentElement.closest(".hg-note, .hg-hide") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
+    });
+    const pieces = [];
+    while (walker.nextNode()) pieces.push(walker.currentNode.textContent.trim());
+    for (const piece of pieces.slice(0, 60)) {
+      if (AD.test(piece)) post.ad = true;
+      if (SUGGESTED.test(piece)) post.suggested = true;
     }
+    // Also read what is on screen: the caption, and Instagram's description of the picture (including text in it).
+    const alts = [...el.querySelectorAll("img[alt]")].map((i) => i.alt);
+    post.caption = [post.caption, ...pieces, ...alts].filter(Boolean).join("\n");
     if (!post.user) {
       const a = [...el.querySelectorAll('a[href^="/"]')].find((x) => /^\/[\w.]+\/$/.test(x.getAttribute("href")));
       if (a) post.user = a.getAttribute("href").slice(1, -1).toLowerCase();
@@ -179,7 +186,9 @@
       if (a.closest("article") && a.closest("article").querySelector("header")) continue;
       if (!a.querySelector("img, video, [style*='background-image']")) continue;
       const code = codeOf(a.getAttribute("href"));
-      const why = code ? reason({ code, ...media.get(code) }, settings) : null;
+      const post = { code, ...media.get(code) };
+      post.caption = [post.caption, ...[...a.querySelectorAll("img[alt]")].map((i) => i.alt)].filter(Boolean).join("\n");
+      const why = code ? reason(post, settings) : null;
       a.classList.toggle("hg-tile", Boolean(why));
       if (why) {
         a.dataset.hgLabel = label(why);
@@ -231,6 +240,60 @@
     schedule();
   }
 
+  // Daily limit: counts the time Instagram is in front of the viewer. Messages are neither counted nor blocked.
+  const limitText = {
+    uz: { title: "Bugunlik yetarli.", body: "Kunlik limit tugadi. Yarim tunda yangilanadi.", more: "Yana 5 daqiqa", direct: "Xabarlarga o'tish" },
+    ru: { title: "На сегодня достаточно.", body: "Дневной лимит исчерпан. Обновится в полночь.", more: "Ещё 5 минут", direct: "К сообщениям" },
+    en: { title: "That is enough for today.", body: "The daily limit is used up. It resets at midnight.", more: "5 more minutes", direct: "Go to messages" },
+  };
+  let usage;
+  let ready = false;
+  let last = Date.now();
+
+  function wall(state) {
+    let box = document.getElementById("hg-wall");
+    const blocked = settings.dailyMinutes > 0 && state.reached && !location.pathname.startsWith("/direct");
+    document.documentElement.classList.toggle("hg-blocked", blocked);
+    if (!blocked) return box?.remove();
+    for (const v of document.querySelectorAll("video")) v.pause();
+    const sig = `${settings.lang}|${state.canExtend}`;
+    if (box?.dataset.sig === sig) return;
+    box?.remove();
+    const w = limitText[settings.lang] || limitText.uz;
+    box = document.createElement("div");
+    box.id = "hg-wall";
+    box.dataset.sig = sig;
+    const title = document.createElement("h1");
+    title.textContent = w.title;
+    const body = document.createElement("p");
+    body.textContent = w.body;
+    box.append(title, body);
+    if (state.canExtend) {
+      box.append(button("", w.more, async () => {
+        usage = { ...today(usage, new Date()), extended: true };
+        await chrome.storage.local.set({ usage });
+        tick();
+      }));
+    }
+    box.append(button("", w.direct, () => location.assign("/direct/inbox/")));
+    document.body.append(box);
+  }
+
+  async function tick() {
+    const now = Date.now();
+    const passed = Math.min(2, (now - last) / 1000);
+    last = now;
+    if (!ready || !document.body) return;
+    usage = today((await chrome.storage.local.get("usage")).usage, new Date());
+    const counting = document.visibilityState === "visible" && document.hasFocus() && !location.pathname.startsWith("/direct");
+    if (counting && !limitState(usage, settings, new Date()).reached) {
+      usage = { ...usage, seconds: usage.seconds + passed };
+      await chrome.storage.local.set({ usage });
+    }
+    wall(limitState(usage, settings, new Date()));
+  }
+  setInterval(() => tick().catch(() => {}), 1000);
+
   window.addEventListener("message", (e) => {
     if (e.source !== window || e.data?.source !== "elakly" || !Array.isArray(e.data.media)) return;
     for (const m of e.data.media) media.set(m.code, m);
@@ -241,6 +304,7 @@
 
   chrome.storage.local.get("settings").then((r) => {
     settings = { ...defaults, ...r.settings };
+    ready = true;
     schedule();
   });
   chrome.storage.onChanged.addListener((changes) => {

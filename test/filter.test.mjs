@@ -77,3 +77,21 @@ test("loads in a browser, where the language list exists", () => {
   vm.runInNewContext(readFileSync(new URL("../extension/filter.js", import.meta.url), "utf8"), page);
   assert.equal(page.ElaklyFilter.defaults.lang, "ru");
 });
+
+test("daily limit: one extension, reset at midnight, off at zero", () => {
+  const { limitState } = globalThis.ElaklyFilter;
+  const noon = new Date(2026, 10, 26, 12);
+  const used = { day: "2026-11-26", seconds: 600, extended: false };
+  assert.equal(limitState(used, s({ dailyMinutes: 10 }), noon).reached, true);
+  assert.equal(limitState({ ...used, extended: true }, s({ dailyMinutes: 10 }), noon).left, 300);
+  assert.equal(limitState(used, s({ dailyMinutes: 10 }), new Date(2026, 10, 27, 0, 1)).reached, false);
+  assert.equal(limitState(used, s({ dailyMinutes: 0 }), noon).reached, false);
+});
+
+test("topic lists: Uzbek and Russian endings, off unless chosen", () => {
+  const post = { caption: "Marketing atamalarini tushuntiraman" };
+  assert.equal(why(post, { topics: ["marketing"] }), "topic");
+  assert.equal(why({ caption: "Секреты таргетированной рекламы" }, { topics: ["marketing"] }), "topic");
+  assert.equal(why({ caption: "Bugun supermarketga bordim" }, { topics: ["marketing"] }), null);
+  assert.equal(why(post), null);
+});

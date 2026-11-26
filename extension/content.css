@@ -1,5 +1,5 @@
 article.hg-post { position: relative; }
-article > .hg-hide { position: absolute; top: 12px; right: 48px; z-index: 5; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(127,127,127,.22); color: inherit; cursor: pointer; opacity: .55; transition: opacity .2s, transform .2s; }
+article > .hg-hide { position: absolute; top: 12px; left: -40px; z-index: 5; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(127,127,127,.22); color: inherit; cursor: pointer; opacity: .55; transition: opacity .2s, transform .2s; }
 article > .hg-hide:hover { opacity: 1; transform: scale(1.12); background: #e9e7e2; color: #111113; }
 article.hg-collapsed > :not(.hg-note) { display: none !important; }
 article.hg-gone { display: none !important; }
@@ -13,3 +13,9 @@ a.hg-tile { position: relative; pointer-events: none; }
 a.hg-tile > * { visibility: hidden !important; }
 a.hg-tile::after { content: attr(data-hg-label); position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 8px; text-align: center; background: repeating-radial-gradient(circle at 50% 50%, #202023 0 1px, transparent 1px 14px), #151517; color: #bdbbb6; font: 12px system-ui, sans-serif; }
 #hg-badge { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 2147483000; padding: 7px 14px; border-radius: 999px; background: #e9e7e2; color: #111113; font: 600 12px system-ui, sans-serif; box-shadow: 0 6px 22px rgba(0,0,0,.35); pointer-events: none; }
+html.hg-blocked, html.hg-blocked body { overflow: hidden !important; }
+#hg-wall { position: fixed; inset: 0; z-index: 2147483600; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center; background: radial-gradient(60% 50% at 50% 35%, #26262a, #101012); color: #e4e2dd; font: 16px/1.5 system-ui, sans-serif; }
+#hg-wall h1 { margin: 0; font: italic 400 clamp(36px, 6vw, 64px)/1.1 Georgia, serif; }
+#hg-wall p { margin: 0 0 10px; color: #9a9893; }
+#hg-wall button { border: 1px solid rgba(233,231,226,.2); border-radius: 999px; padding: 11px 22px; background: transparent; color: #e4e2dd; font: 600 14px system-ui, sans-serif; cursor: pointer; }
+#hg-wall button:hover { background: #e4e2dd; color: #121214; }
