@@ -1,5 +1,5 @@
 /* Monochrome, kept soft for the eyes: graphite and warm paper, never pure black on pure white. */
-@font-face { font-family: "HG Serif"; src: url("fonts/serif.woff2") format("woff2"); font-style: italic; }
+@font-face { font-family: "HG Serif"; src: url("../../extension/fonts/serif.woff2") format("woff2"); font-style: italic; }
 :root { color-scheme: dark; --bg: #121214; --card: #1b1b1e; --line: rgba(233,231,226,.09); --ink: #e4e2dd; --dim: #9a9893; --well: #0f0f11; --lift: 0 10px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.045); }
 @media (prefers-color-scheme: light) { :root { color-scheme: light; --bg: #ecebe7; --card: #f6f5f2; --line: rgba(20,20,22,.09); --ink: #222225; --dim: #66645f; --well: #e4e2dd; --lift: 0 10px 22px rgba(40,36,28,.09), inset 0 1px 0 rgba(255,255,255,.7); } }
 * { box-sizing: border-box; }
@@ -53,3 +53,6 @@ input[type=range] { width: 100%; }
 footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--dim); font-size: 13px; }
 @media (max-width: 760px) { .hero, .demo { grid-template-columns: 1fr; } .orbit { max-width: 280px; } section { padding: 48px 0; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.secondary { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+.honest a, footer a { color: inherit; }
