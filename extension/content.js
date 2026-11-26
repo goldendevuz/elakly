@@ -1,6 +1,6 @@
 // Applies the filters to what Instagram draws.
 (function () {
-  const { defaults, reason } = globalThis.ElaklyFilter;
+  const { defaults, reason, reportable } = globalThis.ElaklyFilter;
   const media = new Map();
   const shown = new Set(); // posts the viewer chose to open anyway
   const counted = new Set();
@@ -27,7 +27,7 @@
     const link = el.querySelector('a[href*="/p/"], a[href*="/reel/"]');
     const code = codeOf(link?.getAttribute("href"));
     const post = { code, ...media.get(code) };
-    const spans = [...el.querySelectorAll("span")].slice(0, 40);
+    const spans = [...el.querySelectorAll("span, div, a")].filter((x) => !x.childElementCount && !x.closest(".hg-note")).slice(0, 60);
     for (const s of spans) {
       const label = s.textContent.trim();
       if (AD.test(label)) post.ad = true;
@@ -67,7 +67,7 @@
   }
 
   function clear(el) {
-    el.classList.remove("hg-collapsed", "hg-veiled");
+    el.classList.remove("hg-collapsed", "hg-veiled", "hg-gone");
     el.querySelector(":scope > .hg-note")?.remove();
     delete el.dataset.hgWhy;
   }
@@ -76,11 +76,12 @@
     let run = 0;
     for (const el of document.querySelectorAll("article")) {
       const post = readArticle(el);
-      const key = post.code || post.user;
+      const key = post.code || post.user || (post.ad || post.suggested ? "post:" + (el.textContent.replace(/\s+/g, " ").trim().slice(0, 80) || "ad") : null);
       const why = key && !shown.has(key) ? reason(post, settings) : null;
       if (!why) {
         run = 0;
         if (el.dataset.hgWhy) clear(el);
+        waiting.delete(el);
         const mine = el.querySelector(":scope > .hg-hide");
         if (settings.enabled && post.code && !mine) {
           el.classList.add("hg-post");
@@ -91,7 +92,8 @@
         continue;
       }
       run++;
-      const mode = run > LIMIT ? "hg-veiled" : "hg-collapsed";
+      const mode = run > LIMIT ? "hg-veiled" : settings.silent ? "hg-gone" : "hg-collapsed";
+      if (settings.tellInstagram && reportable.includes(why.id)) report(el, key);
       const sig = `${key}|${mode}|${label(why)}|${settings.lang}`;
       // Instagram reuses elements, so the note is rebuilt when the post inside changes.
       if (el.dataset.hgWhy === sig && el.querySelector(":scope > .hg-note")) continue;
@@ -109,6 +111,67 @@
       count(key);
     }
   }
+
+  // "Not interested": the only action Elakly ever takes on the account, and only if the viewer turned it on.
+  // It is deliberately slow and capped, so it does not look or behave like a bot flood.
+  const NOT_INTERESTED = /^(not interested|не интересует|не интересно|qiziq emas|qiziqtirmaydi|meni qiziqtirmaydi)$/i;
+  const MORE = 'svg[aria-label="More options"], svg[aria-label="Ещё"], svg[aria-label="Другие параметры"], svg[aria-label="Boshqa parametrlar"], svg[aria-label="Boshqa variantlar"]';
+  const GAP = 8000;
+  const PER_HOUR = 20;
+  const waiting = new Map();
+  const reported = new Set();
+  let sentAt = [];
+  let acting = false;
+
+  function report(el, key) {
+    if (!reported.has(key)) waiting.set(el, key);
+  }
+
+  const pause = (ms) => new Promise((r) => setTimeout(r, ms));
+  const escape = () => document.activeElement?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", code: "Escape", keyCode: 27, bubbles: true }));
+
+  async function sendOne() {
+    const now = Date.now();
+    sentAt = sentAt.filter((t) => now - t < 3600000);
+    if (acting || !settings.enabled || !settings.tellInstagram || document.hidden) return;
+    if (sentAt.length >= PER_HOUR || (sentAt.length && now - sentAt.at(-1) < GAP)) return;
+    // Never interfere with a window the viewer has open.
+    if (document.querySelector('[role="dialog"]')) return;
+    const next = [...waiting].find(([el]) => el.isConnected && el.dataset.hgWhy);
+    if (!next) return;
+    const [el, key] = next;
+    waiting.delete(el);
+    reported.add(key);
+    const more = el.querySelector(MORE)?.closest('button, [role="button"]');
+    if (!more) return;
+    acting = true;
+    sentAt.push(now);
+    document.documentElement.classList.add("hg-acting");
+    try {
+      more.click();
+      let item;
+      for (let i = 0; i < 20 && !item; i++) {
+        await pause(150);
+        item = [...document.querySelectorAll('[role="dialog"] *, [role="menu"] *')].find((x) => !x.childElementCount && NOT_INTERESTED.test(x.textContent.trim()));
+      }
+      if (item) {
+        (item.closest('button, [role="button"], [role="menuitem"]') || item).click();
+        count(key);
+        await pause(900);
+      }
+      // Close the menu, or any follow-up question Instagram asks.
+      for (let i = 0; i < 2 && document.querySelector('[role="dialog"], [role="menu"]'); i++) {
+        const close = document.querySelector('[role="dialog"] svg[aria-label="Close"], [role="dialog"] svg[aria-label="Закрыть"], [role="dialog"] svg[aria-label="Yopish"]')?.closest('button, [role="button"]');
+        if (close) close.click();
+        else escape();
+        await pause(300);
+      }
+    } finally {
+      document.documentElement.classList.remove("hg-acting");
+      acting = false;
+    }
+  }
+  setInterval(sendOne, 1000);
 
   // Explore, profile and search grids.
   function grid() {

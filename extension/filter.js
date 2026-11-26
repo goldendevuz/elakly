@@ -6,6 +6,8 @@
     hideAds: true,
     hideSuggested: true,
     hidePaid: false,
+    silent: true,
+    tellInstagram: false,
     followingOnly: false,
     hideReels: false,
     hidePhotos: false,
@@ -50,6 +52,9 @@
     return new RegExp(`(?:^|${edge})${body}${tail}`, "u").test(fold(text));
   }
 
+  // Only unwanted content is reported to Instagram; limits such as likes or length stay local.
+  const reportable = ["ad", "suggested", "paid", "word", "user", "manual"];
+
   // Returns the reason a post is hidden, or null.
   function reason(post, s) {
     if (!s.enabled) return null;
@@ -75,5 +80,5 @@
     return null;
   }
 
-  root.ElaklyFilter = { defaults, presets, pickLang, matchWord, reason };
+  root.ElaklyFilter = { defaults, presets, pickLang, matchWord, reason, reportable };
 })(globalThis);
