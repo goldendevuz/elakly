@@ -228,6 +228,16 @@
   const COMMENT = 'svg[aria-label="Comment"], svg[aria-label="Комментировать"], svg[aria-label="Комментарий"], svg[aria-label="Fikr bildirish"], svg[aria-label="Izoh qoldirish"]';
   const ALL_COMMENTS = /^(view (all )?[\d,. ]*comments?|view 1 comment|посмотреть (все )?комментарии.*|barcha .*izohlarni ko.rish.*|add a comment.*|добавьте комментарий.*|izoh qo.shing.*)$/i;
 
+  const COMMENT_LINK = 'a[href*="/c/"]';
+  const COMMENT_PATH = /\/(?:p|reel)\/[\w-]+\/c\/\d+/;
+  // True while an element holds one comment and nothing that belongs to the post itself.
+  const onlyThisComment = (el) =>
+    !el.matches("article, main, [role='dialog']") &&
+    el.querySelectorAll("time").length === 1 &&
+    el.querySelectorAll(COMMENT_LINK).length === 1 &&
+    !el.querySelector(`video, textarea, header, h1, ${COMMENT}`);
+  const COMMENT_TEXT = ["article", "main", '[role="dialog"]'].flatMap((root) => [`${root} a`, `${root} span`, `${root} textarea`]).join(", ");
+
   function surface() {
     const on = (key) => settings.enabled && settings[key];
     const root = document.documentElement;
@@ -257,7 +267,22 @@
       }
     }
 
+    // Home shows Instagram's own feed of followed accounts. Tried once per 10 s, so it can never loop.
+    if (on("followingOnly") && location.pathname === "/" && !new URLSearchParams(location.search).has("variant")) {
+      if (Date.now() - Number(sessionStorage.getItem("hg-following") || 0) > 10000) {
+        sessionStorage.setItem("hg-following", Date.now());
+        location.replace("/?variant=following");
+      }
+    }
+
     if (on("hideComments")) {
+      // Inside a single post, each comment is known by the permalink on its time. The caption has none.
+      for (const link of document.querySelectorAll(COMMENT_LINK)) {
+        if (!COMMENT_PATH.test(link.getAttribute("href"))) continue;
+        let box = link;
+        while (box.parentElement && box.parentElement !== document.body && onlyThisComment(box.parentElement)) box = box.parentElement;
+        hidden.add(box);
+      }
       for (const icon of document.querySelectorAll(COMMENT)) {
         if (icon.closest("nav")) continue;
         let slot = icon.closest('button, [role="button"]') || icon.parentElement;
@@ -267,7 +292,7 @@
         const next = slot.nextElementSibling;
         if (next && !next.querySelector("svg") && /^[\d.,\s]+[KMBkmb]?$/.test(next.textContent.trim())) hidden.add(next);
       }
-      for (const el of document.querySelectorAll("article a, article span, article textarea")) {
+      for (const el of document.querySelectorAll(COMMENT_TEXT)) {
         if (ALL_COMMENTS.test((el.placeholder || el.textContent).trim())) hidden.add(el.closest("a, form") || el);
       }
     }
